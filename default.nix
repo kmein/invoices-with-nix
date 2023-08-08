@@ -58,7 +58,8 @@ let
     closing ? defaultClosing,
   }: let
     total = sum (map ({rate, units, ...}: rate * units) statements);
-    taxTotal = sum (map ({rate, units, taxRate ? 0.19, ...}: rate * units * taxRate) statements);
+    taxTotal = statements: sum (map ({rate, units, taxRate ? 0.19, ...}: rate * units * taxRate) statements);
+    taxAmounts = lib.groupBy (x: formatNumber ((x.taxRate or 0.19) * 100)) statements;
   in pkgs.writeText "invoice-${number}.tex" ''
     \documentclass[a4paper]{scrlttr2}
     \usepackage[top=2cm, bottom=1cm, left=2cm, right=2cm]{geometry}
@@ -99,13 +100,13 @@ let
         \begin{center}
           \begin{tabularx}{\textwidth}{Xrrr}
             \textbf{Leistung} & \textbf{Rate} & \textbf{Anzahl} & \textbf{Gesamt}\\
-              ${toString (builtins.map ({name, rate, units}: ''
-                ${name} & ${formatNumber rate} € & ${formatNumber units} & ${formatNumber (units * rate)} € \\
+              ${toString (builtins.map ({name, rate, units, taxRate ? 0.19}: ''
+                ${name}${lib.optionalString (!account.kleinunternehmer) ''\hfill \small{${formatNumber (taxRate * 100)}\%}''} & ${formatNumber rate} € & ${formatNumber units} & ${formatNumber (units * rate)} € \\
               '') statements)}
             \midrule
             & & ${if account.kleinunternehmer then "\\textbf{Summe}" else "Nettopreis"} & ${formatNumber total} €\\
-            ${lib.optionalString (!account.kleinunternehmer) ''& & Zzgl. 19\% USt. & ${formatNumber taxTotal} €\\''}
-            ${lib.optionalString (!account.kleinunternehmer) ''& & \textbf{Summe} & ${formatNumber (total + taxTotal)} €\\''}
+            ${lib.optionalString (!account.kleinunternehmer) (lib.concatStrings (lib.mapAttrsToList (taxRateString: statements: ''& & zzgl. ${taxRateString}\% USt & ${formatNumber (taxTotal statements)} €\\'') taxAmounts))}
+            ${lib.optionalString (!account.kleinunternehmer) ''& & \textbf{Summe} & ${formatNumber (total + taxTotal statements)} €\\''}
           \end{tabularx}
         \end{center}
         ${lib.optionalString (account.kleinunternehmer or false) ''\ps Gemäß \href{https://www.gesetze-im-internet.de/ustg_1980/__19.html}{§ 19 Abs. 1 UStG} berechne ich keine Umsatzsteuer.''}

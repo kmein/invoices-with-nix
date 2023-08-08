@@ -4,6 +4,6 @@
   statements = [
     { rate = 19.99; units = 2; name = "Lektorat (Stunde)"; }
     { rate = 45; units = 5; name = "Scheibenwischen (Scheibe)"; }
-    { rate = 3.95; units = 12; name = "Tasse Kaffee"; }
+    { rate = 3.95; units = 12; name = "Tasse Kaffee"; taxRate = 0.07;}
   ];
 }
