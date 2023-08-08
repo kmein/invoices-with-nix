@@ -104,7 +104,7 @@ let
             & & \textbf{Summe} & ${formatNumber (sum (builtins.map ({rate, units, ...}: rate * units) statements))} €\\
           \end{tabularx}
         \end{center}
-        \ps Gemäß § 19 Abs. 1 UStG wird keine Umsatzsteuer berechnet.
+        \ps Gemäß \href{https://www.gesetze-im-internet.de/ustg_1980/__19.html}{§ 19 Abs. 1 UStG} berechne ich keine Umsatzsteuer.
         \closing{${closing}}
       \end{letter}
     \end{document}
