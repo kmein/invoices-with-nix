@@ -13,8 +13,10 @@
   defaultClosing ? "Mit freundlichen Grüßen"
 }:
 let
-  renderCompanyAndName = { name ? null, company ? null, ... }: builtins.concatStringsSep ''\\'' (builtins.filter (x: x != null) [ name company ]);
-  renderAddress = { street, zip, city }: ''${street}\\ ${toString zip}\ ${city}'';
+  fmap = f: x: if x == null then null else f x;
+
+  renderCompanyAndName = { name ? null, company ? null, ... }: builtins.concatStringsSep ''\\'' (builtins.filter (x: x != null) [ name (fmap (x: ''\textbf{${x}}'') company) ]);
+  renderAddress = { street, zip, city, country ? null }: ''${street}\\ ${toString zip}\ ${city}${lib.optionalString (country != null) ''\\ ${country}''}'';
   renderBank = { bank, iban, bic }: builtins.concatStringsSep ''\\ '' [ bank iban bic ];
 
   sum = builtins.foldl' builtins.add 0;
