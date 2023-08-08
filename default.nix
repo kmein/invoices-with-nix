@@ -79,7 +79,6 @@ let
 
     \setkomavar{firsthead}{%
       \parbox{\linewidth}{\flushright
-        \sffamily
         \usekomavar{fromname}\\
         \usekomavar{fromaddress}\\[\baselineskip]
         \footnotesize
@@ -94,7 +93,7 @@ let
       \begin{letter}{${renderCompanyAndName customer}\\ ${renderAddress customer.address}}
         \opening{${salutation}}
         ${text}
-        \begin{center}\sffamily
+        \begin{center}
           \begin{tabularx}{\textwidth}{Xrrr}
             \textbf{Leistung} & \textbf{Rate} & \textbf{Anzahl} & \textbf{Gesamt}\\
               ${toString (builtins.map ({name, rate, units}: ''
