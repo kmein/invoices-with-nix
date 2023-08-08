@@ -56,7 +56,10 @@ let
     account ? defaultAccount,
     salutation ? defaultSalutation,
     closing ? defaultClosing,
-  }: pkgs.writeText "invoice-${number}.tex" ''
+  }: let
+    total = sum (map ({rate, units, ...}: rate * units) statements);
+    taxTotal = sum (map ({rate, units, taxRate ? 0.19, ...}: rate * units * taxRate) statements);
+  in pkgs.writeText "invoice-${number}.tex" ''
     \documentclass[a4paper]{scrlttr2}
     \usepackage[top=2cm, bottom=1cm, left=2cm, right=2cm]{geometry}
     \usepackage{graphicx}
@@ -97,13 +100,15 @@ let
           \begin{tabularx}{\textwidth}{Xrrr}
             \textbf{Leistung} & \textbf{Rate} & \textbf{Anzahl} & \textbf{Gesamt}\\
               ${toString (builtins.map ({name, rate, units}: ''
-                ${name} & ${formatNumber rate} € & ${formatNumber units} & ${formatNumber (units * rate)} €\\
+                ${name} & ${formatNumber rate} € & ${formatNumber units} & ${formatNumber (units * rate)} € \\
               '') statements)}
             \midrule
-            & & \textbf{Summe} & ${formatNumber (sum (builtins.map ({rate, units, ...}: rate * units) statements))} €\\
+            & & ${if account.kleinunternehmer then "\\textbf{Summe}" else "Nettopreis"} & ${formatNumber total} €\\
+            ${lib.optionalString (!account.kleinunternehmer) ''& & Zzgl. 19\% USt. & ${formatNumber taxTotal} €\\''}
+            ${lib.optionalString (!account.kleinunternehmer) ''& & \textbf{Summe} & ${formatNumber (total + taxTotal)} €\\''}
           \end{tabularx}
         \end{center}
-        \ps Gemäß \href{https://www.gesetze-im-internet.de/ustg_1980/__19.html}{§ 19 Abs. 1 UStG} berechne ich keine Umsatzsteuer.
+        ${lib.optionalString (account.kleinunternehmer or false) ''\ps Gemäß \href{https://www.gesetze-im-internet.de/ustg_1980/__19.html}{§ 19 Abs. 1 UStG} berechne ich keine Umsatzsteuer.''}
         \closing{${closing}}
       \end{letter}
     \end{document}

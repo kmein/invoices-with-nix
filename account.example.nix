@@ -1,5 +1,6 @@
 {
   taxId = "12/345/67890";
+  kleinunternehmer = false;
   name = "Johann Schmidt";
   address = {
     street = "Kirchgasse 25";
