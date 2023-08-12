@@ -86,10 +86,10 @@ let
         \usekomavar{fromname}\\
         \usekomavar{fromaddress}\\[\baselineskip]
         \footnotesize
-        \textbf{\usekomavar*{frombank}}\\
-        \usekomavar{frombank}\\[\baselineskip]
         \textbf{${account.taxId.type or "Steuernummer"}}\\
-        ${account.taxId.number}
+        ${account.taxId.number}\\[\baselineskip]
+        \textbf{\usekomavar*{frombank}}\\
+        \usekomavar{frombank}
       }
     }
 
