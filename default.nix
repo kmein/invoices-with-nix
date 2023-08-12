@@ -88,8 +88,8 @@ let
         \footnotesize
         \textbf{\usekomavar*{frombank}}\\
         \usekomavar{frombank}\\[\baselineskip]
-        \textbf{Steuernummer}\\
-        ${account.taxId}
+        \textbf{${account.taxId.type or "Steuernummer"}}\\
+        ${account.taxId.number}
       }
     }
 
