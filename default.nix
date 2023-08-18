@@ -41,11 +41,16 @@ let
     }.${month};
   in "${lib.removePrefix "0" day}. ${month-german} ${year}";
 
-  formatNumber = n: let
-    components = builtins.split ''\.'' (toString n);
-    integral = builtins.elemAt components 0;
-    rational = if builtins.length components == 3 then builtins.elemAt components 2 else "00";
-  in "${integral},${builtins.substring 0 2 (rational + "00")}";
+  toCents = n: builtins.floor (n * 100);
+
+  zeroPad = l: s: if builtins.stringLength s < l then zeroPad l "0${s}" else s;
+
+  formatPercent = p: "${formatCents (toCents (p * 100))}\\%";
+
+  formatCents = n: let
+    integral = builtins.div n 100;
+    rational = lib.mod n 100;
+  in "${toString integral},${zeroPad 2 (toString rational)}";
 
   invoiceLatex = number: {
     customer,
@@ -57,9 +62,9 @@ let
     salutation ? defaultSalutation,
     closing ? defaultClosing,
   }: let
-    total = sum (map ({rate, units, ...}: rate * units) statements);
-    taxTotal = statements: sum (map ({rate, units, taxRate ? 0.19, ...}: rate * units * taxRate) statements);
-    taxAmounts = lib.groupBy (x: formatNumber ((x.taxRate or 0.19) * 100)) statements;
+    total = sum (map ({rate, units, ...}: toCents (rate * units)) statements);
+    taxTotal = statements: sum (map ({rate, units, taxRate ? 0.19, ...}: toCents (rate * units * taxRate)) statements);
+    taxAmounts = lib.groupBy (x: formatPercent (x.taxRate or 0.19)) statements;
   in pkgs.writeText "invoice-${number}.tex" ''
     \documentclass[a4paper]{scrlttr2}
     \usepackage[top=2cm, bottom=1cm, left=2cm, right=2cm]{geometry}
@@ -101,12 +106,12 @@ let
           \begin{tabularx}{\textwidth}{Xrrr}
             \textbf{Leistung} & \textbf{Rate} & \textbf{Anzahl} & \textbf{Gesamt}\\
               ${toString (builtins.map ({name, rate, units, taxRate ? 0.19}: ''
-                ${name}${lib.optionalString (!account.kleinunternehmer) ''\hfill \small{${formatNumber (taxRate * 100)}\%}''} & ${formatNumber rate} € & ${formatNumber units} & ${formatNumber (units * rate)} € \\
+                ${name}${lib.optionalString (!account.kleinunternehmer) ''\hfill \small{${formatPercent (taxRate)}}''} & ${formatCents (toCents rate)} € & ${toString units} & ${formatCents (toCents (units * rate))} € \\
               '') statements)}
             \midrule
-            & & ${if account.kleinunternehmer then "\\textbf{Summe}" else "Nettopreis"} & ${formatNumber total} €\\
-            ${lib.optionalString (!account.kleinunternehmer) (lib.concatStrings (lib.mapAttrsToList (taxRateString: statements: ''& & zzgl. ${taxRateString}\% USt & ${formatNumber (taxTotal statements)} €\\'') taxAmounts))}
-            ${lib.optionalString (!account.kleinunternehmer) ''& & \textbf{Summe} & ${formatNumber (total + taxTotal statements)} €\\''}
+            & & ${if account.kleinunternehmer then "\\textbf{Summe}" else "Nettopreis"} & ${formatCents total} €\\
+            ${lib.optionalString (!account.kleinunternehmer) (lib.concatStrings (lib.mapAttrsToList (taxRateString: statements: ''& & zzgl. ${taxRateString} USt & ${formatCents (taxTotal statements)} €\\'') taxAmounts))}
+            ${lib.optionalString (!account.kleinunternehmer) ''& & \textbf{Summe} & ${formatCents (total + taxTotal statements)} €\\''}
           \end{tabularx}
         \end{center}
         ${lib.optionalString (account.kleinunternehmer or false) ''\ps Gemäß \href{https://www.gesetze-im-internet.de/ustg_1980/__19.html}{§ 19 Abs. 1 UStG} berechne ich keine Umsatzsteuer.''}
