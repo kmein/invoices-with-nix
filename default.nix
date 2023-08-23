@@ -47,6 +47,8 @@ let
 
   formatPercent = p: "${formatCents (toCents (p * 100))}\\%";
 
+  formatNumber = n: formatCents (toCents n);
+
   formatCents = n: let
     integral = builtins.div n 100;
     rational = lib.mod n 100;
@@ -106,7 +108,7 @@ let
           \begin{tabularx}{\textwidth}{Xrrr}
             \textbf{Leistung} & \textbf{Rate} & \textbf{Anzahl} & \textbf{Gesamt}\\
               ${toString (builtins.map ({name, rate, units, taxRate ? 0.19}: ''
-                ${name}${lib.optionalString (!account.kleinunternehmer) ''\hfill \small{${formatPercent (taxRate)}}''} & ${formatCents (toCents rate)} € & ${toString units} & ${formatCents (toCents (units * rate))} € \\
+                ${name}${lib.optionalString (!account.kleinunternehmer) ''\hfill \small{${formatPercent (taxRate)}}''} & ${formatCents (toCents rate)} € & ${formatNumber units} & ${formatCents (toCents (units * rate))} € \\
               '') statements)}
             \midrule
             & & ${if account.kleinunternehmer then "\\textbf{Summe}" else "Nettopreis"} & ${formatCents total} €\\
