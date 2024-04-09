@@ -59,7 +59,8 @@ let
     date ? dateFromInvoiceNumber number,
     text ? defaultText,
     statements,
-    project ? "",
+    project ? null,
+    yourref ? null,
     account ? defaultAccount,
     salutation ? defaultSalutation,
     closing ? defaultClosing,
@@ -87,6 +88,7 @@ let
     \setkomavar{subject}{Rechnung${lib.optionalString (project != null) ": ${project}"}}
     \setkomavar{invoice}{${number}}
     \setkomavar{frombank}{${renderBank account.account}}
+    ${lib.optionalString (yourref != null) ''\setkomavar{yourref}{${yourref}}''}
 
     \setkomavar{firsthead}{%
       \parbox{\linewidth}{\flushright
