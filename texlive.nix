@@ -8,6 +8,7 @@ texlive.combine ({
   "booktabs" = texlive."booktabs";
   "ctablestack" = texlive."ctablestack";
   "etoolbox" = texlive."etoolbox";
+  "enumitem" = texlive."enumitem";
   "fontaxes" = texlive."fontaxes";
   "fontspec" = texlive."fontspec";
   "geometry" = texlive."geometry";

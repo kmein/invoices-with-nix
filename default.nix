@@ -77,6 +77,7 @@ let
     \usepackage[T1]{fontenc}
     \usepackage[ngerman]{babel}
     \usepackage{color}
+    \usepackage{enumitem}
     \usepackage[hidelinks]{hyperref}
 
     \usepackage{tabularx,booktabs}
