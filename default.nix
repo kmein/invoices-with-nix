@@ -109,7 +109,7 @@ let
         ${text}
         \begin{center}
           \begin{tabularx}{\textwidth}{Xrrr}
-            \textbf{Leistung} & \textbf{Rate} & \textbf{Anzahl} & \textbf{Gesamt}\\
+            \textbf{Leistung} & \textbf{Preis} & \textbf{Anzahl} & \textbf{Gesamt}\\
               ${toString (builtins.map ({name, rate, units, taxRate ? 0.19}: ''
                 ${name}${lib.optionalString (!account.kleinunternehmer) ''\hfill \small{${formatPercent (taxRate)}}''} & ${formatCents (toCents rate)} € & ${formatNumber units} & ${formatCents (toCents (units * rate))} € \\
               '') statements)}
