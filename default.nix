@@ -84,6 +84,7 @@ let
 
     \setkomavar{fromname}{${account.name}}
     \setkomavar{fromaddress}{${renderAddress account.address}}
+    ${lib.optionalString (account.email != null) ''\setkomavar{fromemail}{${account.email}}''}
     \setkomavar{place}{${account.address.city}}
     \setkomavar{date}{${date}}
     \setkomavar{subject}{Rechnung${lib.optionalString (project != null) ": ${project}"}}
@@ -96,6 +97,10 @@ let
         \usekomavar{fromname}\\
         \usekomavar{fromaddress}\\[\baselineskip]
         \footnotesize
+        ${lib.optionalString (account.email != null) ''
+          \textbf{\usekomavar*{fromemail}}\\
+          \usekomavar{fromemail}\\[\baselineskip]
+        ''}
         \textbf{${account.taxId.type or "Steuernummer"}}\\
         ${account.taxId.number}\\[\baselineskip]
         \textbf{\usekomavar*{frombank}}\\
