@@ -85,6 +85,8 @@ let
     \setkomavar{fromname}{${account.name}}
     \setkomavar{fromaddress}{${renderAddress account.address}}
     ${lib.optionalString (account.email != null) ''\setkomavar{fromemail}{${account.email}}''}
+    ${lib.optionalString (account.fax != null) ''\setkomavar{fromfax}{${account.fax}}''}
+    ${lib.optionalString (account.phone != null) ''\setkomavar{fromfax}{${account.phone}}''}
     \setkomavar{place}{${account.address.city}}
     \setkomavar{date}{${date}}
     \setkomavar{subject}{Rechnung${lib.optionalString (project != null) ": ${project}"}}
@@ -98,12 +100,16 @@ let
         \usekomavar{fromaddress}\\[\baselineskip]
         \footnotesize
         ${lib.optionalString (account.email != null) ''
-          \textbf{\usekomavar*{fromemail}}\\
-          \usekomavar{fromemail}\\[\baselineskip]
+          ${account.email}\\
         ''}
-        \textbf{${account.taxId.type or "Steuernummer"}}\\
-        ${account.taxId.number}\\[\baselineskip]
-        \textbf{\usekomavar*{frombank}}\\
+        ${lib.optionalString (account.phone != null) ''
+          \textsc{fon}  ${account.phone}\\
+        ''}
+        ${lib.optionalString (account.fax != null) ''
+          \textsc{fax}  ${account.fax}\\
+        ''}
+        \textsc{${lib.toLower (account.taxId.type or "Steuernummer")}} ${account.taxId.number}\\[\baselineskip]
+        \textsc{\usekomavar*{frombank}}\\
         \usekomavar{frombank}
       }
     }
